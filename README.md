@@ -52,6 +52,10 @@ Todas as tabelas ficam no catálogo `cinedata_analytics`, nos schemas `bronze`, 
 
 Os arquivos CSV não são versionados neste repositório.
 
+## Orquestração
+
+O pipeline é executado por um job do Databricks (Lakeflow Jobs) com quatro tarefas encadeadas, uma por notebook: `00_organizacao_ambiente` → `01_ingestao_bronze` → `02_bronze_to_silver` → `03_silver_to_gold`. Cada tarefa só começa quando a anterior termina com sucesso. A definição do job está em `pipelines/cinedata_analytics_pipeline.yaml`.
+
 ## Principais decisões
 
 - **Bronze sem `inferSchema`**: todas as colunas são gravadas como texto, preservando a origem. A tipagem acontece na Silver.
