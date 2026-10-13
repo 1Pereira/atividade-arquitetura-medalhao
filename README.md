@@ -28,7 +28,7 @@ Todas as tabelas ficam no catálogo `cinedata_analytics`, nos schemas `bronze`, 
 │   ├── Landing_to_Bronze.ipynb
 │   ├── Bronze_to_Silver.ipynb
 │   └── Silver_to_Gold.ipynb
-├── pipelines/
+├── pipeline/
 │   └── job.yaml
 ├── docs/
 │   └── execucao_job.png
@@ -40,7 +40,7 @@ Todas as tabelas ficam no catálogo `cinedata_analytics`, nos schemas `bronze`, 
 | `notebooks/Landing_to_Bronze.ipynb` | Cria o catálogo, o database `bronze` e o Volume `inputs`, valida os 5 CSVs, grava as tabelas Bronze e extrai a cotação do dólar da API PTAX, com as datas definidas por widgets |
 | `notebooks/Bronze_to_Silver.ipynb` | Cria o database `silver` e gera as 7 tabelas Silver com as regras de limpeza e de negócio |
 | `notebooks/Silver_to_Gold.ipynb` | Cria o database `gold`, monta o Star Schema e responde às perguntas do Desafio de Analytics |
-| `job.yaml` | Definição do Job de orquestração exportada do Databricks |
+| `pipeline/job.yaml` | Definição do Job de orquestração exportada do Databricks |
 | `docs/execucao_job.png` | Execução de sucesso do Job, com as dependências entre as tarefas |
 
 ## Tabelas por camada
@@ -73,7 +73,7 @@ to_Bronze  →  to_Silver  →  to_Gold
 
 1. Importe os notebooks da pasta `notebooks` no Workspace do Databricks.
 2. No `Landing_to_Bronze`, rode as seções 1 e 2 e faça o upload dos CSVs da pasta Inputs no Volume `cinedata_analytics.bronze.inputs`.
-3. Crie o Job a partir do `job.yaml` (ajustando os caminhos dos notebooks) ou execute os três notebooks em ordem.
+3. Crie o Job a partir do `pipeline/job.yaml` (ajustando os caminhos dos notebooks) ou execute os três notebooks em ordem.
 
 Os arquivos CSV não são versionados neste repositório.
 
