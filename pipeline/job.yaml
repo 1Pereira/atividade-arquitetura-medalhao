@@ -1,0 +1,28 @@
+resources:
+  jobs:
+    cinedata_analytics_pipeline:
+      name: cinedata_analytics_pipeline
+      schedule:
+        quartz_cron_expression: 0 0 14 ? * MON-FRI
+        timezone_id: America/Sao_Paulo
+        pause_status: UNPAUSED
+      tasks:
+        - task_key: to_Bronze
+          notebook_task:
+            notebook_path: /Workspace/Rocket_Lab/Atividade 2/Landing_to_Bronze
+            source: WORKSPACE
+        - task_key: to_Silver
+          depends_on:
+            - task_key: to_Bronze
+          notebook_task:
+            notebook_path: /Workspace/Rocket_Lab/Atividade 2/Bronze_to_Silver
+            source: WORKSPACE
+        - task_key: to_Gold
+          depends_on:
+            - task_key: to_Silver
+          notebook_task:
+            notebook_path: /Workspace/Rocket_Lab/Atividade 2/Silver_to_Gold
+            source: WORKSPACE
+      queue:
+        enabled: true
+      performance_target: PERFORMANCE_OPTIMIZED
