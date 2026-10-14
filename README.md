@@ -79,13 +79,26 @@ Os arquivos CSV não são versionados neste repositório.
 
 ## Principais decisões
 
-- **Bronze sem `inferSchema`**: todas as colunas são gravadas como texto, preservando a origem. A tipagem acontece na Silver.
-- **Append na Bronze, deduplicação na Silver**: cada execução gera um novo lote; a Silver mantém apenas a versão mais recente de cada filme.
+### Bronze
+- **Sem `inferSchema`**: todas as colunas são gravadas como texto, preservando a origem. A tipagem acontece na Silver.
+- **Append**: cada execução gera um novo lote; a deduplicação fica nas camadas seguintes.
+
+### Silver
+- **Deduplicação de filmes**: a `tb_info_filmes` mantém apenas a versão mais recente de cada filme pela `ingestion_datetime`.
+- **Datas multi-formato**: a origem mistura `yyyy-MM-dd`, `dd/MM/yyyy` e `MM-dd-yyyy`; os três padrões são testados e só fica `NULL` o que não converte em nenhum.
 - **Conversão segura**: valores fora de contexto causados pelo Column Shift viram `NULL` sem interromper o pipeline. Isso inclui anos que caíram na coluna de popularidade em linhas deslocadas.
-- **Valores financeiros abreviados**: orçamentos como `200.0M` e `2.5K` são convertidos pela escala (K = mil, M = milhão, B = bilhão) em vez de virar `NULL`.
-- **Separadores extras**: gêneros, pessoas e produtoras usam `;` e `|` além da vírgula; os três são padronizados antes do `split`.
 - **Popularidade em linhas quebradas**: quando a origem divide a popularidade em duas colunas por aspas incorretas, o valor é reconstruído e as notas e votos voltam para a coluna correta.
-- **Cotação do dólar**: série diária contínua com Forward Fill para fins de semana e feriados. Os valores em BRL usam a cotação mais recente extraída da API.
+- **Valores financeiros abreviados**: orçamentos como `200.0M` e `2.5K` são convertidos pela escala (K = mil, M = milhão, B = bilhão) em vez de virar `NULL`.
 - **Lucro e margem**: só são calculados quando orçamento e receita existem, evitando tratar receita ausente como prejuízo e divisões por zero.
-- **Grão da fato**: um registro por filme lançado. Ids repetidos nas tabelas financeira e de métricas são consolidados antes dos joins, e as relações N:N (gêneros, pessoas e produtoras) ficam nas bridge tables, sem duplicar a fato.
-- **Desafio de Analytics**: valores monetários exibidos no padrão brasileiro (`R$ 1.234.567,89`), apenas na exibição; as tabelas Gold mantêm os valores em `DECIMAL(18,2)`.
+- **Separadores extras**: gêneros, pessoas e produtoras usam `;` e `|` além da vírgula; os três são padronizados antes do `split`.
+- **Domínio de gêneros**: só entram os 19 gêneros oficiais do TMDB; qualquer outro valor é tratado como resíduo do Column Shift.
+- **Limpeza de pessoas e produtoras**: são descartados marcadores de ausência (`N/A`, `Nenhum`, `[]`), valores sem nenhuma letra e textos descritivos (que começam com minúscula ou têm mais de 8 palavras).
+- **Cotação do dólar**: série diária contínua com Forward Fill para fins de semana e feriados. Os valores em BRL usam a cotação mais recente extraída da API.
+
+### Gold
+- **Grão da fato**: um registro por filme lançado. Antes dos joins, ids repetidos são consolidados: no financeiro fica a linha mais completa (com receita e orçamento), mantendo lucro e valores em BRL coerentes; nas métricas fica o maior valor válido de cada coluna.
+- **Bridge tables**: as relações N:N (gêneros, pessoas e produtoras) ficam nas bridges, sem duplicar a fato.
+- **`dim_people`**: a chave é nome + tipo, então uma pessoa que atua e dirige aparece uma vez para cada papel.
+- **Lucro por produtora**: na pergunta 6, o lucro de cada filme é atribuído integralmente a todas as suas produtoras.
+- **Exibição monetária**: valores no padrão brasileiro (`R$ 1.234.567,89`) apenas na exibição; as tabelas mantêm `DECIMAL(18,2)`.
+- **Métrica de popularidade**: a popularidade do TMDB mede a atividade recente na plataforma, não a fama acumulada; por isso o topo do ranking concentra lançamentos próximos à data de extração da base.
