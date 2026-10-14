@@ -84,6 +84,7 @@ Os arquivos CSV não são versionados neste repositório.
 - **Conversão segura**: valores fora de contexto causados pelo Column Shift viram `NULL` sem interromper o pipeline. Isso inclui anos que caíram na coluna de popularidade em linhas deslocadas.
 - **Valores financeiros abreviados**: orçamentos como `200.0M` e `2.5K` são convertidos pela escala (K = mil, M = milhão, B = bilhão) em vez de virar `NULL`.
 - **Separadores extras**: gêneros, pessoas e produtoras usam `;` e `|` além da vírgula; os três são padronizados antes do `split`.
+- **Popularidade em linhas quebradas**: quando a origem divide a popularidade em duas colunas por aspas incorretas, o valor é reconstruído e as notas e votos voltam para a coluna correta.
 - **Cotação do dólar**: série diária contínua com Forward Fill para fins de semana e feriados. Os valores em BRL usam a cotação mais recente extraída da API.
 - **Lucro e margem**: só são calculados quando orçamento e receita existem, evitando tratar receita ausente como prejuízo e divisões por zero.
 - **Grão da fato**: um registro por filme lançado. Ids repetidos nas tabelas financeira e de métricas são consolidados antes dos joins, e as relações N:N (gêneros, pessoas e produtoras) ficam nas bridge tables, sem duplicar a fato.
