@@ -64,6 +64,8 @@ O pipeline é executado pelo Job `cinedata_analytics_pipeline`, com três tarefa
 to_Bronze  →  to_Silver  →  to_Gold
 ```
 
+![Execução do Job](docs/execucao_job.png)
+
 - Cada tarefa executa um notebook e só começa depois que a anterior termina com sucesso.
 - Se algum CSV estiver faltando no Volume, a tarefa `to_Bronze` falha na validação e o Job para antes das camadas seguintes.
 - **Agendamento:** de segunda a sexta, às 14h (horário de Brasília). A PTAX é divulgada em dias úteis no início da tarde, então cada execução já captura a cotação do dia.
